@@ -1,0 +1,47 @@
+{
+    "folders": [
+        {
+            "name": "Workspace",
+            "path": "/apps/data/workspace"
+        },
+        {
+            "name": "AppsData",
+            "path": "/apps/data"
+        },
+        {
+            "name": "UserRoot",
+            "path": "/root"
+        },
+        {
+            "name": "HostData",
+            "path": "/data"
+        }
+    ],
+    "settings": {
+        "search.followSymlinks": false,
+        "files.exclude": {
+            "**/.vscode-server/**": true,
+            "**/docker-root/**": true,
+            "**/.git/objects/**": true,
+            "**/.git/subtree-cache/**": true,
+            "**/node_modules/*/**": true
+        },
+        "files.watcherExclude": {
+            "**/.vscode-server/**": true,
+            "**/docker-root/**": true,
+            "**/.git/objects/**": true,
+            "**/.git/subtree-cache/**": true,
+            "**/node_modules/*/**": true
+        },
+        "git.enabled": true,
+        "git.autoRepositoryDetection": false,
+        "git.repositoryScanMaxDepth": 1,
+        "git.repositoryScanIgnoredFolders": [
+            "/data/**",
+            "/root/**",
+        ],
+        "git.scanRepositories": [
+            "/apps/data/workspace/default",
+        ],
+    }
+}
