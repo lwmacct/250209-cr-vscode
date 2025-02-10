@@ -6,6 +6,7 @@ __main() {
     {
         : # 初始化文件
         tar -vcpf - -C /apps/file . | (cd / && tar -xpf - --skip-old-files)
+        (cd /apps/data/workspace && go work init)
     } 2>&1 | tee /apps/data/logs/entry-tar.log
 
     {
