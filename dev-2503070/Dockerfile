@@ -105,7 +105,8 @@ ENV GO111MODULE=on
 
 WORKDIR /apps/data
 COPY apps/ /apps/
-ENTRYPOINT ["tini", "--", "sh", "-c", "bash /apps/.entry.sh & exec cron -f"]
+ENTRYPOINT ["tini", "--"]
+CMD ["sh", "-c", "bash /apps/.entry.sh & exec cron -f"]
 
 LABEL org.opencontainers.image.source=https://github.com/lwmacct/250209-cr-vscode
 LABEL org.opencontainers.image.description="专为 VSCode 容器开发环境构建"
