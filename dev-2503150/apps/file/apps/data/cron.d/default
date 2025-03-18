@@ -6,4 +6,4 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # * * * * * root date >>/cron_test.log
 
-*/10 * * * * root bash /data/script/close-vscode-server.sh
+*/10 * * * * root bash /data/script/kill_vscode_server.sh
