@@ -2,7 +2,7 @@
 __main() {
   {
     # 镜像准备
-    _image1="ghcr.io/lwmacct/250209-cr-vscode:dev-2503150"
+    _image1="ghcr.io/lwmacct/250209-cr-vscode:dev-2503200"
     _image2="$(docker images -q $_image1)"
     if [[ "$_image2" == "" ]]; then
       docker pull $_image1
