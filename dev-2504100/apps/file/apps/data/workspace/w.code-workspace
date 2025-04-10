@@ -1,0 +1,57 @@
+{
+    "folders": [
+        {
+            "name": "Workspace",
+            "path": "/apps/data/workspace"
+        },
+        // {
+        //     "name": "AppsData",
+        //     "path": "/apps/data"
+        // },
+        // {
+        //     "name": "UserRoot",
+        //     "path": "/root"
+        // },
+        // {
+        //     "name": "HostData",
+        //     "path": "/data"
+        // }
+    ],
+    "settings": {
+        "search.followSymlinks": false,
+        "files.exclude": {
+            "**/.vscode-server/**": true,
+            "**/.cursor-server/**": true,
+            "**/.git/objects/**": true,
+            "**/.git/subtree-cache/**": true,
+            "**/node_modules/*/**": true,
+            "**/docker-root/**": true,
+            "**/.zcompdump-*": true,
+            "**/.wget-hsts": true,
+            "**/.zsh_history": true,
+            "**/.bash_history": true,
+        },
+        "files.watcherExclude": {
+            "**/.vscode-server/**": true,
+            "**/.cursor-server/**": true,
+            "**/.git/objects/**": true,
+            "**/.git/subtree-cache/**": true,
+            "**/node_modules/*/**": true,
+            "**/docker-root/**": true,
+            "**/.zcompdump-*": true,
+            "**/.wget-hsts": true,
+            "**/.zsh_history": true,
+            "**/.bash_history": true,
+        },
+        "git.enabled": true,
+        "git.autoRepositoryDetection": false,
+        "git.repositoryScanMaxDepth": 1,
+        "git.repositoryScanIgnoredFolders": [
+            "/data/**",
+            "/root/**",
+        ],
+        "git.scanRepositories": [
+            "/apps/data/workspace/default",
+        ],
+    }
+}
