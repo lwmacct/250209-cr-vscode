@@ -44,6 +44,7 @@ RUN set -eux; \
     npm install -g vitest@latest; \
     npm install -g vue-tsc@latest; \
     npm install -g pnpm@latest-10; \
+    npm install -g prettier@latest; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*;
 
