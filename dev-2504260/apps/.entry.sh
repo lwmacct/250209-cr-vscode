@@ -2,7 +2,7 @@
 # Admin https://www.yuque.com/lwmacct
 
 __main() {
-    mkdir -p /apps/data/{workspace/default,logs,script,cron.d}
+    mkdir -p /apps/data/{workspace,logs,script,cron.d}
     {
         : # 初始化文件
         tar -vcpf - -C /apps/file . | (cd / && tar -xpf - --skip-old-files)
