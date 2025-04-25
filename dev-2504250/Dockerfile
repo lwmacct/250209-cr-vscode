@@ -99,13 +99,13 @@ RUN set -eux; \
         python3-etcd3 python3-redis python3-influxdb-client python3-apsw \
         python3-websockets python3-httpx python3-fastapi python3-uvicorn python3-pydantic \
         python3-requests python3-requests-unixsocket python3-requests-toolbelt python3-requests-oauthlib \
-        python3-openssl python3-cryptography python3-bcrypt \
-        python3-yaml python3-jinja2 python3-protobuf \
+        python3-openssl python3-cryptography python3-bcrypt python3-kafka \
+        python3-yaml python3-jinja2 python3-protobuf python3-grpcio \
         python3-numpy python3-pandas \
         python3-prometheus-client python3-pyghmi \
         python3-urwid python3-urwid-readline python3-urwidtrees python3-urwid-utils \
         python3-rich python3-rich-click python3-textual; \
-    python3 -m venv --system-site-packages /root/venv; \
+    python3 -m venv --system-site-packages /opt/venv; \
     apt-get autoremove -y; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*;
@@ -118,7 +118,7 @@ RUN echo "软链接 cron.d" ; \
     chmod 700 /root/.ssh; \
     echo "StrictHostKeyChecking no" >> /root/.ssh/config;
 
-ENV PATH=/root/venv/bin:/usr/local/go/bin:/opt/fluent-bit/bin:/root/go/bin:$PATH
+ENV PATH=/usr/local/go/bin:/opt/venv/bin:/opt/fluent-bit/bin:/root/go/bin:$PATH
 ENV TZ=Asia/Shanghai
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV GOPROXY=https://goproxy.cn,direct
