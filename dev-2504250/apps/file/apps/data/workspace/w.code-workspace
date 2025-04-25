@@ -3,7 +3,7 @@
     {
       "name": "Workspace",
       "path": "/apps/data/workspace"
-    },
+    }
     // {
     //     "name": "UserRoot",
     //     "path": "/root"
@@ -56,6 +56,7 @@
     "git.scanRepositories": ["/apps/data/workspace"],
     "autopep8.interpreter": ["/opt/venv/bin/python"],
     "autopep8.args": ["--indent-size=2", "--max-line-length=120"],
+    "flake8.args": ["--disable=C0111", "--max-line-length=120"],
     "prettier.printWidth": 120,
     "prettier.tabWidth": 2
   }
