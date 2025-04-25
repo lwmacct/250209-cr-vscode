@@ -118,7 +118,7 @@ RUN echo "软链接 cron.d" ; \
     chmod 700 /root/.ssh; \
     echo "StrictHostKeyChecking no" >> /root/.ssh/config;
 
-ENV PATH=/root/venv/bin:/usr/local/go/bin:/root/go/bin:$PATH
+ENV PATH=/root/venv/bin:/usr/local/go/bin:/opt/fluent-bit/bin:/root/go/bin:$PATH
 ENV TZ=Asia/Shanghai
 ENV GOPROXY=https://goproxy.cn,direct
 ENV GO111MODULE=on

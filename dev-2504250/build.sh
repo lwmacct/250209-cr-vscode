@@ -132,7 +132,7 @@ RUN echo "软链接 cron.d" ; \
     chmod 700 /root/.ssh; \
     echo "StrictHostKeyChecking no" >> /root/.ssh/config;
 
-ENV PATH=/root/venv/bin:/usr/local/go/bin:/root/go/bin:$PATH
+ENV PATH=/root/venv/bin:/usr/local/go/bin:/opt/fluent-bit/bin:/root/go/bin:$PATH
 ENV TZ=Asia/Shanghai
 ENV GOPROXY=https://goproxy.cn,direct
 ENV GO111MODULE=on
@@ -165,7 +165,7 @@ EOF
         _registry="ghcr.io/lwmacct" # CR 服务平台
         _repository="$_registry/$_image"
         docker buildx build --builder default --platform linux/amd64 -t "$_repository" --network host --progress plain --load . && {
-            if true; then
+            if false; then
                 docker rm -f sss
                 docker run -itd --name=sss \
                     --restart=always \
