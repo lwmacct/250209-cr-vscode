@@ -19,6 +19,7 @@
   ],
   "settings": {
     "search.followSymlinks": false,
+    "files.watcherExclude": {},
     "files.exclude": {
       "**/__pycache__/**": true,
       "**/node_modules/*/**": true,
@@ -46,14 +47,13 @@
       "**/vendor/**",
       "**/venv/**"
     ],
-    "files.watcherExclude": {},
+    "python.defaultInterpreterPath": "/opt/venv/bin/python",
+    "python.terminal.activateEnvironment": false,
     "git.enabled": true,
     "git.autoRepositoryDetection": false,
     "git.repositoryScanMaxDepth": 1,
     "git.repositoryScanIgnoredFolders": ["/data/**", "/root/**"],
     "git.scanRepositories": ["/apps/data/workspace"],
-    "python.defaultInterpreterPath": "/opt/venv/bin/python",
-    "python.terminal.activateEnvironment": false,
     "autopep8.interpreter": ["/opt/venv/bin/python"],
     "autopep8.args": ["--indent-size=2", "--max-line-length=120"],
     "prettier.printWidth": 120,
