@@ -32,6 +32,11 @@ RUN set -eux; \
     curl -Lo - "https://golang.google.cn/dl/go1.24.2.linux-amd64.tar.gz" | tar zxf - -C /usr/local/;
 
 RUN set -eux; \
+    echo "安装 Minio Client https://min.io/docs/minio/linux/reference/minio-mc.html"; \
+    curl -Lo /usr/local/bin/mc "https://dl.min.io/client/mc/release/linux-amd64/mc"; \
+    chmod +x /usr/local/bin/mc;
+
+RUN set -eux; \
     echo "Installing Node.js and npm"; \
     curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - ; \
     apt-get install -y nodejs; \
@@ -40,9 +45,9 @@ RUN set -eux; \
     npm install -g npm@latest; \
     npm -v; \
     npm install -g @go-task/cli; \
-    npm install -g yarn@latest; \
     npm install -g vitest@latest; \
     npm install -g vue-tsc@latest; \
+    npm install -g yarn@latest; \
     npm install -g pnpm@latest-10; \
     npm install -g prettier@latest; \
     apt-get clean; \
@@ -107,9 +112,11 @@ RUN set -eux; \
         python3-prometheus-client python3-pyghmi \
         python3-urwid python3-urwid-readline python3-urwidtrees python3-urwid-utils \
         python3-rich python3-rich-click python3-textual; \
+    python3 -m venv --system-site-packages /root/venv; \
     apt-get autoremove -y; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*;
+
 
 RUN echo "软链接 cron.d" ; \
     rm -rf /etc/cron.d/; \
@@ -119,7 +126,7 @@ RUN echo "软链接 cron.d" ; \
     chmod 700 /root/.ssh; \
     echo "StrictHostKeyChecking no" >> /root/.ssh/config;
 
-ENV PATH=$PATH:/usr/local/go/bin:/root/go/bin
+ENV PATH=/root/venv/bin:/usr/local/go/bin:/root/go/bin:$PATH
 ENV TZ=Asia/Shanghai
 ENV GOPROXY=https://goproxy.cn,direct
 ENV GO111MODULE=on
@@ -152,7 +159,7 @@ EOF
         _registry="ghcr.io/lwmacct" # CR 服务平台
         _repository="$_registry/$_image"
         docker buildx build --builder default --platform linux/amd64 -t "$_repository" --network host --progress plain --load . && {
-            if false; then
+            if true; then
                 docker rm -f sss
                 docker run -itd --name=sss \
                     --restart=always \
@@ -173,7 +180,7 @@ __help() {
     cat >/dev/null <<"EOF"
 这里可以写一些备注
 
-ghcr.io/lwmacct/250209-cr-vscode:dev-2504100
+ghcr.io/lwmacct/250209-cr-vscode:dev-2504250
 
 EOF
 }
