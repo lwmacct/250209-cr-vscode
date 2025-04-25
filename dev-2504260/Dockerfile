@@ -1,17 +1,3 @@
-#!/usr/bin/env bash
-# shellcheck disable=SC2317
-# document https://www.yuque.com/lwmacct/docker/buildx
-
-__main() {
-    {
-        _sh_path=$(realpath "$(ps -p $$ -o args= 2>/dev/null | awk '{print $2}')") # 当前脚本路径
-        _pro_name=$(echo "$_sh_path" | awk -F '/' '{print $(NF-2)}')               # 当前项目名
-        _dir_name=$(echo "$_sh_path" | awk -F '/' '{print $(NF-1)}')               # 当前目录名
-        _image="${_pro_name}:$_dir_name"
-    }
-
-    _dockerfile=$(
-        cat <<"EOF"
 FROM ghcr.io/lwmacct/250209-cr-ubuntu:noble-t2502090
 
 COPY --from=gcr.io/etcd-development/etcd:v3.5.21 /usr/local/bin/etcdctl /usr/local/bin/etcdctl
@@ -109,7 +95,7 @@ RUN set -eux; \
         flake8 python3-flake8 python3-autopep8 \
         python3-kafka python3-protobuf python3-grpcio python3-etcd3 python3-redis python3-influxdb-client \
         python3-docker python3-dockerpty python3-dockerpycreds \
-        python3-watchdog python3-psutil python3-cpuinfo python3-ping3 python3-schedule python3-pexpect \
+        python3-watchdog python3-psutil python3-cpuinfo python3-schedule python3-pexpect \
         python3-nftables python3-pyudev python3-dmidecode \
         python3-paramiko python3-dnspython python3-scapy python3-netifaces python3-pysnmp-lextudio python3-plumbum \
         python3-websockets python3-httpx python3-fastapi python3-uvicorn python3-pydantic \
@@ -144,51 +130,6 @@ COPY apps/ /apps/
 ENTRYPOINT ["tini", "--"]
 CMD ["sh", "-c", "bash /apps/.entry.sh & exec cron -f"]
 
-LABEL org.opencontainers.image.source=$_ghcr_source
+LABEL org.opencontainers.image.source=https://github.com/lwmacct/250209-cr-vscode
 LABEL org.opencontainers.image.description="专为 VSCode 容器开发环境构建"
 LABEL org.opencontainers.image.licenses=MIT
-EOF
-    )
-    {
-        cd "$(dirname "$_sh_path")" || exit 1
-        echo "$_dockerfile" >Dockerfile
-
-        _ghcr_source=$(sed 's|git@github.com:|https://github.com/|' ../.git/config | grep url | sed 's|.git$||' | awk '{print $NF}')
-        sed -i "s|\$_ghcr_source|$_ghcr_source|g" Dockerfile
-    }
-    {
-        if command -v sponge >/dev/null 2>&1; then
-            jq 'del(.credsStore)' ~/.docker/config.json | sponge ~/.docker/config.json
-        else
-            jq 'del(.credsStore)' ~/.docker/config.json >~/.docker/config.json.tmp && mv ~/.docker/config.json.tmp ~/.docker/config.json
-        fi
-    }
-    {
-        _registry="ghcr.io/lwmacct" # CR 服务平台
-        _repository="$_registry/$_image"
-        docker buildx build --builder default --platform linux/amd64 -t "$_repository" --network host --progress plain --load . && {
-            if false; then
-                docker rm -f sss
-                docker run -itd --name=sss \
-                    --restart=always \
-                    --network=host \
-                    --privileged=false \
-                    "$_repository"
-                docker exec -it sss bash
-            fi
-        }
-        docker push "$_repository"
-
-    }
-}
-
-__main
-
-__help() {
-    cat >/dev/null <<"EOF"
-这里可以写一些备注
-
-ghcr.io/lwmacct/250209-cr-vscode:dev-2504250
-
-EOF
-}
