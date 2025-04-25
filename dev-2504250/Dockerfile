@@ -120,6 +120,7 @@ RUN echo "软链接 cron.d" ; \
 
 ENV PATH=/root/venv/bin:/usr/local/go/bin:/opt/fluent-bit/bin:/root/go/bin:$PATH
 ENV TZ=Asia/Shanghai
+ENV PYTHONDONTWRITEBYTECODE=1
 ENV GOPROXY=https://goproxy.cn,direct
 ENV GO111MODULE=on
 
