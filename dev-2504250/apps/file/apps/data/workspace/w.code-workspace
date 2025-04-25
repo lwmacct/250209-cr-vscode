@@ -48,6 +48,7 @@
       "**/venv/**"
     ],
     "python.defaultInterpreterPath": "/opt/venv/bin/python",
+    "python.languageServer": "Pylance",
     "python.terminal.activateEnvironment": false,
     "git.enabled": true,
     "git.autoRepositoryDetection": false,
