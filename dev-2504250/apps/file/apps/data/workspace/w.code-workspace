@@ -3,7 +3,7 @@
     {
       "name": "Workspace",
       "path": "/apps/data/workspace"
-    }
+    },
     // {
     //     "name": "UserRoot",
     //     "path": "/root"
@@ -20,13 +20,14 @@
   "settings": {
     "search.followSymlinks": false,
     "files.exclude": {
+      "**/__pycache__/**": true,
+      "**/node_modules/*/**": true,
+      "**/docker-root/**": true,
+      "**/*-*/docker/**": true,
       "**/.vscode-server/**": true,
       "**/.cursor-server/**": true,
       "**/.git/objects/**": true,
       "**/.git/subtree-cache/**": true,
-      "**/node_modules/*/**": true,
-      "**/docker-root/**": true,
-      "**/*-*/docker/**": true,
       "**/.zcompdump-*": true,
       "**/.wget-hsts": true,
       "**/.zsh_history": true,
@@ -35,16 +36,15 @@
     "python.analysis.exclude": [
       "**/__pycache__/**",
       "**/node_modules/**",
-      "**/bower_components/**",
+      "**/docker-root/**",
+      "**/*-*/docker/**",
+      "**/.vscode-server/**",
+      "**/.cursor-server/**",
+      "**/.*/**",
       "**/dist/**",
       "**/build/**",
       "**/vendor/**",
-      "**/venv/**",
-      "**/docker-root/**",
-      "**/.vscode-server/**",
-      "**/.cursor-server/**",
-      "**/*-*/docker/**",
-      "**/.*/**"
+      "**/venv/**"
     ],
     "files.watcherExclude": {},
     "git.enabled": true,
@@ -52,13 +52,11 @@
     "git.repositoryScanMaxDepth": 1,
     "git.repositoryScanIgnoredFolders": ["/data/**", "/root/**"],
     "git.scanRepositories": ["/apps/data/workspace"],
-    // prettier
-    "prettier.printWidth": 180,
-    "prettier.tabWidth": 2,
-    // python
     "python.defaultInterpreterPath": "/opt/venv/bin/python",
     "python.terminal.activateEnvironment": false,
     "autopep8.interpreter": ["/opt/venv/bin/python"],
-    "autopep8.args": ["--indent-size=2", "--max-line-length=120"]
+    "autopep8.args": ["--indent-size=2", "--max-line-length=120"],
+    "prettier.printWidth": 120,
+    "prettier.tabWidth": 2
   }
 }
