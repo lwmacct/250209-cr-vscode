@@ -3,7 +3,7 @@
     {
       "name": "Workspace",
       "path": "/apps/data/workspace"
-    },
+    }
     // {
     //     "name": "UserRoot",
     //     "path": "/root"
@@ -51,13 +51,14 @@
     "git.autoRepositoryDetection": false,
     "git.repositoryScanMaxDepth": 1,
     "git.repositoryScanIgnoredFolders": ["/data/**", "/root/**"],
-    "git.scanRepositories": ["/apps/data/workspace/default"],
+    "git.scanRepositories": ["/apps/data/workspace"],
     // prettier
     "prettier.printWidth": 180,
     "prettier.tabWidth": 2,
     // python
-    "python.defaultInterpreterPath": "/root/venv/bin/python",
+    "python.defaultInterpreterPath": "/opt/venv/bin/python",
     "python.terminal.activateEnvironment": false,
-    "autopep8.interpreter": ["/root/venv/bin/python"]
+    "autopep8.interpreter": ["/opt/venv/bin/python"],
+    "autopep8.args": ["--indent-size=2", "--max-line-length=120"]
   }
 }

@@ -106,16 +106,17 @@ RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
         python3 python3-pip python3-venv python3-dotenv \
+        flake8 python3-flake8 python3-autopep8 \
+        python3-kafka python3-protobuf python3-grpcio python3-etcd3 python3-redis python3-influxdb-client \
         python3-docker python3-dockerpty python3-dockerpycreds \
         python3-watchdog python3-psutil python3-cpuinfo python3-ping3 python3-schedule python3-pexpect \
         python3-nftables python3-pyudev python3-dmidecode \
         python3-paramiko python3-dnspython python3-scapy python3-netifaces python3-pysnmp-lextudio python3-plumbum \
-        python3-etcd3 python3-redis python3-influxdb-client python3-apsw \
         python3-websockets python3-httpx python3-fastapi python3-uvicorn python3-pydantic \
         python3-requests python3-requests-unixsocket python3-requests-toolbelt python3-requests-oauthlib \
-        python3-openssl python3-cryptography python3-bcrypt python3-kafka \
-        python3-yaml python3-jinja2 python3-protobuf python3-grpcio \
-        python3-numpy python3-pandas \
+        python3-openssl python3-cryptography python3-bcrypt \
+        python3-yaml python3-jinja2 \
+        python3-numpy python3-pandas python3-apsw \
         python3-prometheus-client python3-pyghmi \
         python3-urwid python3-urwid-readline python3-urwidtrees python3-urwid-utils \
         python3-rich python3-rich-click python3-textual; \
