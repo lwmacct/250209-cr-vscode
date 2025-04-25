@@ -67,6 +67,13 @@ RUN set -eux; \
     find /opt/ohmyzsh/ -type d -name '.git' | xargs -r rm -rf;
 
 RUN set -eux; \
+    echo "安装 fluent-bit"; \
+    curl https://raw.githubusercontent.com/fluent/fluent-bit/master/install.sh | sh; \
+    apt-get autoremove -y; \
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*;
+
+RUN set -eux; \
     echo "常用包安装"; \
     apt-get update; apt-get install -y --no-install-recommends \
         bpfcc-tools linux-tools-common linux-tools-generic \
@@ -102,7 +109,6 @@ RUN set -eux; \
     apt-get autoremove -y; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*;
-
 
 RUN echo "软链接 cron.d" ; \
     rm -rf /etc/cron.d/; \
