@@ -111,6 +111,13 @@ RUN set -eux; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*;
 
+RUN set -eux; \
+    echo "pip 安装"; \
+    /opt/venv/bin/pip config set global.index-url https://mirrors.ustc.edu.cn/pypi/simple; \
+    /opt/venv/bin/pip install --upgrade pip; \
+    /opt/venv/bin/pip install --no-cache-dir uv "mcp[cli]"; \
+    echo;
+
 RUN echo "软链接 cron.d" ; \
     rm -rf /etc/cron.d/; \
     ln -sf /apps/data/cron.d/ /etc/cron.d; \
