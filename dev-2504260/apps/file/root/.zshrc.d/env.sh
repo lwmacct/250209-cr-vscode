@@ -2,6 +2,8 @@
 # author https://github.com/lwmacct
 
 __load_taskfile_env() {
+  # 禁用 glob 的 no_nomatch 选项, 避免 find 匹配不到文件时依然有输出
+  setopt no_nomatch
   {
     # Load .env.template files
     _task_env="$(find /apps/data/workspace/*/.taskfile/ -maxdepth 1 -type f -name '.env.template' 2>/dev/null)"
