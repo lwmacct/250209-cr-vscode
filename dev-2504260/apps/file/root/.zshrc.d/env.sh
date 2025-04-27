@@ -1,8 +1,9 @@
 # shellcheck disable=all
+# author https://github.com/lwmacct
 
 __load_taskfile_env() {
   {
-    # 加载 .env.template 文件
+    # Load .env.template files
     _task_env="$(find /apps/data/workspace/*/.taskfile/ -maxdepth 1 -type f -name '.env.template' 2>/dev/null)"
     while IFS= read -r _env_file; do
       if [[ -f $_env_file ]]; then
@@ -14,7 +15,7 @@ __load_taskfile_env() {
   }
 
   {
-    # 加载 .env 文件
+    # Load .env files
     _task_env="$(find /apps/data/workspace/*/.taskfile/ -maxdepth 1 -type f -name '.env' 2>/dev/null)"
     while IFS= read -r _env_file; do
       if [[ -f $_env_file ]]; then
@@ -28,7 +29,7 @@ __load_taskfile_env() {
 }
 
 __main() {
-  # 如有必要, 可以取消注释
+  # Caution: .env files in git repositories may contain potentially dangerous execution scripts
   __load_taskfile_env
 
   {
