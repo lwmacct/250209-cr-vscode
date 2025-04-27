@@ -2,9 +2,9 @@
 # Admin https://www.yuque.com/lwmacct
 
 __main() {
-    mkdir -p /apps/data/{workspace,logs,script,cron.d}
     {
         : # 初始化文件
+        mkdir -p /apps/data/{workspace,logs,script,cron.d}
         tar -vcpf - -C /apps/file . | (cd / && tar -xpf - --skip-old-files)
         (cd /apps/data/workspace && go work init)
     } 2>&1 | tee /apps/data/logs/entry-tar.log
@@ -18,7 +18,7 @@ __main() {
             fi
         done
     } 2>&1 | tee -a /apps/data/logs/entry-init.log
-
+    service cron reload
 }
 
 __main

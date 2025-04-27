@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 __main() {
-    cat >/etc/supervisord.conf <<EOF
+  cat >/etc/supervisord.conf <<EOF
 [unix_http_server]
 file=/run/supervisord.sock
 chmod=0700
@@ -23,7 +23,7 @@ history_file=~/.sc_history
 [include]
 files = /etc/supervisor.d/*.conf /data/supervisor.d/*.conf
 EOF
-    exec supervisord -c /etc/supervisord.conf
+  exec supervisord -c /etc/supervisord.conf
 }
 
 __main
