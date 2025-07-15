@@ -1,20 +1,6 @@
-#!/usr/bin/env bash
-# shellcheck disable=SC2317
-# document https://www.yuque.com/lwmacct/docker/buildx
-
-__main() {
-  {
-    _sh_path=$(realpath "$(ps -p $$ -o args= 2>/dev/null | awk '{print $2}')") # 当前脚本路径
-    _pro_name=$(echo "$_sh_path" | awk -F '/' '{print $(NF-2)}')               # 当前项目名
-    _dir_name=$(echo "$_sh_path" | awk -F '/' '{print $(NF-1)}')               # 当前目录名
-    _image="${_pro_name}:$_dir_name"
-  }
-
-  _dockerfile=$(
-    cat <<"EOF"
 FROM ghcr.io/lwmacct/250209-cr-ubuntu:noble-t2506180
 
-COPY --from=gcr.io/etcd-development/etcd:v3.6.1 /usr/local/bin/etcdctl /usr/local/bin/etcdctl
+COPY --from=gcr.io/etcd-development/etcd:v3.6.2 /usr/local/bin/etcdctl /usr/local/bin/etcdctl
 RUN set -eux; \
     echo "安装 docker-cli https://docs.docker.com/engine/install/ubuntu/"; \
     install -m 0755 -d /etc/apt/keyrings; \
@@ -29,7 +15,7 @@ RUN set -eux; \
 
 RUN set -eux; \
     echo "安装 Golang https://golang.google.cn/dl/"; \
-    curl -Lo - "https://golang.google.cn/dl/go1.24.4.linux-amd64.tar.gz" | tar zxf - -C /usr/local/; \
+    curl -Lo - "https://golang.google.cn/dl/go1.24.5.linux-amd64.tar.gz" | tar zxf - -C /usr/local/; \
     /usr/local/go/bin/go install mvdan.cc/sh/v3/cmd/shfmt@latest;
 
 RUN set -eux; \
@@ -93,10 +79,11 @@ RUN set -eux; \
     apt-get update; apt-get install -y --no-install-recommends \
         bpfcc-tools linux-tools-common \
         build-essential gcc make cmake automake ninja-build shc upx \
-        strace ltrace valgrind \
+        file strace ltrace valgrind netcat-openbsd \
         git-lfs cron direnv shellcheck fzf zfsutils-linux xxd \
         zsh redis-tools openssh-client supervisor \
         xarclock xvfb x11vnc dbus-x11 \
+        dnsutils \
         asciinema \
         umoci skopeo \
         ; \
@@ -143,51 +130,6 @@ COPY apps/ /apps/
 ENTRYPOINT ["tini", "--"]
 CMD ["sh", "-c", "bash /apps/.entry.sh & exec cron -f"]
 
-LABEL org.opencontainers.image.source=$_ghcr_source
+LABEL org.opencontainers.image.source=https://github.com/lwmacct/250209-cr-vscode
 LABEL org.opencontainers.image.description="专为 VSCode 容器开发环境构建"
 LABEL org.opencontainers.image.licenses=MIT
-EOF
-  )
-  {
-    cd "$(dirname "$_sh_path")" || exit 1
-    echo "$_dockerfile" >Dockerfile
-
-    _ghcr_source=$(sed 's|git@github.com:|https://github.com/|' ../.git/config | grep url | sed 's|.git$||' | awk '{print $NF}')
-    sed -i "s|\$_ghcr_source|$_ghcr_source|g" Dockerfile
-  }
-  {
-    if command -v sponge >/dev/null 2>&1; then
-      jq 'del(.credsStore)' ~/.docker/config.json | sponge ~/.docker/config.json
-    else
-      jq 'del(.credsStore)' ~/.docker/config.json >~/.docker/config.json.tmp && mv ~/.docker/config.json.tmp ~/.docker/config.json
-    fi
-  }
-  {
-    _registry="ghcr.io/lwmacct" # CR 服务平台
-    _repository="$_registry/$_image"
-    docker buildx build --builder default --platform linux/amd64 -t "$_repository" --network host --progress plain --load . && {
-      if false; then
-        docker rm -f sss
-        docker run -itd --name=sss \
-          --restart=always \
-          --network=host \
-          --privileged=false \
-          "$_repository"
-        docker exec -it sss bash
-      fi
-    }
-    docker push "$_repository"
-
-  }
-}
-
-__main
-
-__help() {
-  cat >/dev/null <<"EOF"
-这里可以写一些备注
-
-ghcr.io/lwmacct/250209-cr-vscode:dev-2506090
-
-EOF
-}
