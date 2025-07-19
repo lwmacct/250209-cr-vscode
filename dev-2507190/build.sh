@@ -189,7 +189,7 @@ __help() {
   cat >/dev/null <<"EOF"
 这里可以写一些备注
 
-ghcr.io/lwmacct/250209-cr-vscode:dev-2507150
+ghcr.io/lwmacct/250209-cr-vscode:dev-2507190
 
 EOF
 }
