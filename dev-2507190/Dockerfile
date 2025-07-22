@@ -103,13 +103,21 @@ RUN set -eux; \
     npm -v; \
     npm install -g npm@latest; \
     npm -v; \
-    npm install -g @go-task/cli; \
-    npm install -g vitest@latest; \
-    npm install -g vue-tsc@latest; \
-    npm install -g yarn@latest; \
-    npm install -g pnpm@latest-10; \
-    npm install -g prettier@latest; \
-    npm install -g @anthropic-ai/claude-code; \
+    echo "Configuring npm to minimize cache"; \
+    npm config set cache /tmp/npm-cache; \
+    npm config set prefer-offline false; \
+    echo "Installing global npm packages"; \
+    npm install -g --no-cache \
+        @go-task/cli \
+        vitest@latest \
+        vue-tsc@latest \
+        yarn@latest \
+        pnpm@latest-10 \
+        prettier@latest \
+        @anthropic-ai/claude-code; \
+    echo "Cleaning npm cache and temporary files"; \
+    npm cache clean --force; \
+    rm -rf ~/.npm /tmp/npm-cache; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*;
 
