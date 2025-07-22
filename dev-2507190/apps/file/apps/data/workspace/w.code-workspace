@@ -1,4 +1,4 @@
 {
-  "folders": [{ "path": "/apps/data/workspace" }],
+  "folders": [{ "path": "/apps/data/workspace" }, { "path": "." }],
   "settings": {}
 }
