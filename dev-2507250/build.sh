@@ -104,8 +104,8 @@ RUN set -eux; \
 
 RUN set -eux; \
     echo "安装 uv"; \
-    curl -LsSf https://astral.sh/uv/install.sh | sh; \
-    export PATH="/root/.local/bin:$PATH"; \
+    XDG_BIN_HOME=/usr/local/bin curl -LsSf https://astral.sh/uv/install.sh | sh; \
+    export PATH="/usr/local/bin:$PATH"; \
     uv venv /opt/venv --system-site-packages; \
     uv pip install --python /opt/venv/bin/python pip; \
     /opt/venv/bin/pip config set global.index-url https://mirrors.ustc.edu.cn/pypi/simple; \
@@ -179,7 +179,7 @@ EOF
     _registry="ghcr.io/lwmacct" # CR 服务平台
     _repository="$_registry/$_image"
     docker buildx build --builder default --platform linux/amd64 -t "$_repository" --network host --progress plain --load . && {
-      if false; then
+      if true; then
         docker rm -f sss
         docker run -itd --name=sss \
           --restart=always \
@@ -189,7 +189,7 @@ EOF
         docker exec -it sss bash
       fi
     }
-    docker push "$_repository"
+    # docker push "$_repository"
 
   }
 }
