@@ -105,7 +105,7 @@ RUN set -eux; \
 RUN set -eux; \
     echo "安装 uv"; \
     XDG_BIN_HOME=/usr/local/bin curl -LsSf https://astral.sh/uv/install.sh | sh; \
-    export PATH="/usr/local/bin:$PATH"; \
+    export PATH="/root/.local/bin:$PATH"; \
     uv venv /opt/venv --system-site-packages; \
     uv pip install --python /opt/venv/bin/python pip; \
     /opt/venv/bin/pip config set global.index-url https://mirrors.ustc.edu.cn/pypi/simple; \
