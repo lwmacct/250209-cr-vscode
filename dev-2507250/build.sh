@@ -104,10 +104,9 @@ RUN set -eux; \
 
 RUN set -eux; \
     echo "安装 uv"; \
-    curl -LsSf https://astral.sh/uv/install.sh | sh; \
+    UV_DISABLE_UPDATE=1 curl -LsSf https://astral.sh/uv/install.sh | sh; \
     mv /root/.local/bin/uv /usr/local/bin/uv; \
     mv /root/.local/bin/uvx /usr/local/bin/uvx; \
-    export PATH="/usr/local/bin:$PATH"; \
     uv venv /opt/venv --system-site-packages; \
     uv pip install --python /opt/venv/bin/python pip; \
     /opt/venv/bin/pip config set global.index-url https://mirrors.ustc.edu.cn/pypi/simple; \
