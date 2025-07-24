@@ -104,11 +104,9 @@ RUN set -eux; \
 
 RUN set -eux; \
     echo "安装 uv"; \
-    wget -qO- https://github.com/astral-sh/uv/releases/download/0.8.2/uv-x86_64-unknown-linux-gnu.tar.gz | tar -xzf - -C /tmp; \
-    mv /tmp/uv-x86_64-unknown-linux-gnu/uv /usr/local/bin/uv; \
-    mv /tmp/uv-x86_64-unknown-linux-gnu/uvx /usr/local/bin/uvx; \
-    chmod +x /usr/local/bin/uv /usr/local/bin/uvx; \
-    rm -rf /tmp/uv-x86_64-unknown-linux-gnu; \
+    curl -LsSf https://astral.sh/uv/install.sh | sh; \
+    mv /root/.local/bin/uv /usr/local/bin/uv; \
+    mv /root/.local/bin/uvx /usr/local/bin/uvx; \
     export PATH="/usr/local/bin:$PATH"; \
     uv venv /opt/venv --system-site-packages; \
     uv pip install --python /opt/venv/bin/python pip; \
