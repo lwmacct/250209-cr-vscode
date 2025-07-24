@@ -3,6 +3,11 @@
 
 __main() {
   {
+    # 历史遗留处理
+    rm -rf /apps/data/init.d/99-supervisord.sh
+  }
+
+  {
     : # 初始化文件
     mkdir -p /apps/data/{workspace,logs,script,cron.d,supervisor.d}
     tar -vcpf - -C /apps/file . | (cd / && tar -xpf - --skip-old-files)
