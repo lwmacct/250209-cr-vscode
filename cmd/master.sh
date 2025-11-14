@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
+
 __main() {
   {
     # 镜像准备
-    _image1="ghcr.io/lwmacct/250209-cr-vscode:dev-2503200"
+    _proxy="ghcr.nju.edu.cn/"
+    _proxy="1181.s.kuaicdn.cn:11818/"
+    _image1="${_proxy}ghcr.io/lwmacct/250209-cr-vscode:dev-2508200"
     _image2="$(docker images -q $_image1)"
     if [[ "$_image2" == "" ]]; then
       docker pull $_image1
@@ -21,12 +24,6 @@ __main() {
     --cgroupns=host \
     --privileged=true \
     --security-opt apparmor=unconfined \
-    --device /dev/kvm \
-    -v /proc/:/host/proc \
-    -v /run/:/host/run \
-    -v /data:/data:rw,rshared \
-    -v /disk:/disk:rw,rshared \
-    -v /zfs:/zfs:rw,rshared \
     -v "$_app_data:/apps/data" \
     -v "$_app_data/.vscode-server/root:/root" \
     -v "$_app_data/.vscode-server/data:/root/.vscode-server/data" \
@@ -35,6 +32,12 @@ __main() {
     -v vscode-server:/root/.vscode-server \
     -v vscode-root-go:/root/go \
     -v vscode-root-cache:/root/.cache \
+    -v /proc:/host/proc \
+    -v /run:/host/run \
+    -v /etc:/host/etc \
+    -v /data:/data \
+    -v /data/shared/root/.ssh:/root/.ssh \
+    -v /data/shared/root/.docker:/root/.docker \
     "$_image2"
 }
 
