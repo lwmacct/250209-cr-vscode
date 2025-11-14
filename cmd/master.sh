@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-
 __main() {
   {
     # 镜像准备
     _proxy="ghcr.nju.edu.cn/"
     _proxy="1181.s.kuaicdn.cn:11818/"
-    _image1="${_proxy}ghcr.io/lwmacct/250209-cr-vscode:dev-2508200"
+    _image1="${_proxy}ghcr.io/lwmacct/250209-cr-vscode:dev-2511140"
     _image2="$(docker images -q $_image1)"
     if [[ "$_image2" == "" ]]; then
       docker pull $_image1

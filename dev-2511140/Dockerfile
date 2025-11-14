@@ -1,7 +1,48 @@
-FROM ghcr.io/lwmacct/250209-cr-ubuntu:noble-t2506180
+# https://hub.docker.com/_/ubuntu
+FROM ubuntu:noble-20251013
+LABEL maintainer="https://github.com/lwmacct"
+ARG DEBIAN_FRONTEND=noninteractive
+SHELL ["/bin/bash", "-lc"]
 
-# https://github.com/etcd-io/etcd
-COPY --from=gcr.io/etcd-development/etcd:v3.6.3 /usr/local/bin/etcdctl /usr/local/bin/etcdctl
+RUN set -eux; \
+    echo "配置源,容器内源文件为 /etc/apt/sources.list.d/ubuntu.sources"; \
+    sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list.d/ubuntu.sources; \
+    sed -i 's/security.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list.d/ubuntu.sources; \
+    apt-get update; apt-get install -y --no-install-recommends ca-certificates curl wget sudo pcp gnupg; \
+    sed -i 's/http:/https:/g' /etc/apt/sources.list.d/ubuntu.sources; \
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/*; \
+    echo "设置 PS1"; \
+    cat >> /root/.bashrc <<"MEOF"
+PS1='${debian_chroot:+($debian_chroot)}\[\033[01;33m\]\u\[\033[00m\]@\[\033[01;35m\]\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+MEOF
+
+RUN set -eux; \
+    echo "语言/时间"; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends locales fonts-wqy-zenhei fonts-wqy-microhei tzdata; \
+    locale-gen zh_CN.UTF-8 en_US.UTF-8; \
+    update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 LANGUAGE=en_US.UTF-8; \
+    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime; \
+    echo "Asia/Shanghai" > /etc/timezone; \
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/*; \
+    echo;
+
+RUN set -eux; \
+    echo "基础软件包"; \
+    apt-get update; \
+    apt-get dist-upgrade -y; \
+    apt-get install -y --no-install-recommends \
+        tini supervisor cron vim git jq bc tree zstd zip unzip xz-utils tzdata lsof expect tmux perl sshpass  \
+        util-linux bash-completion dosfstools e2fsprogs parted dos2unix kmod pciutils moreutils psmisc \
+        openssl openssh-server nftables iptables iproute2 iputils-ping net-tools ethtool socat telnet mtr rsync ipmitool nfs-common \
+        sysstat iftop htop iotop dstat \
+        ipmitool dmidecode smartmontools hardinfo lsscsi nvme-cli ; \
+    rm -rf /*-is-merged; \
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/*; \
+    echo;
 
 RUN set -eux; \
     echo 'install oh-my-zsh'; \
@@ -54,10 +95,28 @@ RUN set -eux; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*;
 
+# https://github.com/etcd-io/etcd
+# curl -s https://api.github.com/repos/etcd-io/etcd/releases/latest | jq -r '.tag_name'
+COPY --from=gcr.io/etcd-development/etcd:v3.6.6 /usr/local/bin/etcdctl /usr/local/bin/etcdctl
+
+ARG GOPROXY=https://goproxy.cn,direct
+ARG GO111MODULE=on
 RUN set -eux; \
-    echo "安装 Golang https://golang.google.cn/dl/"; \
-    curl -Lo - "https://golang.google.cn/dl/go1.25.0.linux-amd64.tar.gz" | tar zxf - -C /usr/local/; \
-    /usr/local/go/bin/go install mvdan.cc/sh/v3/cmd/shfmt@latest;
+    echo "安装 Golang https://go.dev/dl/"; \
+    _go_version=$(curl -sSL 'https://go.dev/dl/?mode=json' | jq -r '.[0].version'); \
+    echo "获取到 Golang 最新版本: $_go_version"; \
+    curl -Lo - "https://go.dev/dl/$_go_version.linux-amd64.tar.gz" | tar zxf - -C /usr/local/; \
+    echo "安装常用 Go 工具"; \
+    /usr/local/go/bin/go install mvdan.cc/sh/v3/cmd/shfmt@latest; \
+    /usr/local/go/bin/go install golang.org/x/tools/cmd/godoc@latest; \
+    /usr/local/go/bin/go install golang.org/x/tools/cmd/goimports@latest; \
+    /usr/local/go/bin/go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest; \
+    /usr/local/go/bin/go install github.com/air-verse/air@latest; \
+    /usr/local/go/bin/go install github.com/go-delve/delve/cmd/dlv@latest; \
+    /usr/local/go/bin/go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest; \
+    /usr/local/go/bin/go install google.golang.org/protobuf/cmd/protoc-gen-go@latest; \
+    /usr/local/go/bin/go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest; \
+    echo "安装 Go 工具完成";
 
 RUN set -eux; \
     echo "常用包安装"; \
@@ -82,7 +141,6 @@ RUN set -eux; \
     apt-get install -y --no-install-recommends \
         python3 python3-pip python3-venv python3-dotenv \
         python3-yaml \
-        flake8 python3-flake8 python3-autopep8 \
         python3-requests python3-requests-unixsocket \
         python3-openssl python3-bcrypt; \
     apt-get autoremove -y; \
@@ -91,7 +149,9 @@ RUN set -eux; \
 
 RUN set -eux; \
     echo "安装 uv"; \
-    wget -qO- https://github.com/astral-sh/uv/releases/download/0.8.11/uv-x86_64-unknown-linux-gnu.tar.gz | tar -xzf - -C /tmp; \
+    _tag_name=$(curl -s https://api.github.com/repos/astral-sh/uv/releases/latest | jq -r '.tag_name'); \
+    echo "获取到 uv 最新版本: $_tag_name"; \
+    wget -qO- https://github.com/astral-sh/uv/releases/download/$_tag_name/uv-x86_64-unknown-linux-gnu.tar.gz | tar -xzf - -C /tmp; \
     mv /tmp/uv-x86_64-unknown-linux-gnu/uv /usr/local/bin/uv; \
     mv /tmp/uv-x86_64-unknown-linux-gnu/uvx /usr/local/bin/uvx; \
     chmod +x /usr/local/bin/uv /usr/local/bin/uvx; \
@@ -102,11 +162,30 @@ RUN set -eux; \
     uv -V; \
     echo;
 
+ENV NVM_DIR=/opt/nvm 
+ENV NODE_VERSION="lts/*"
 RUN set -eux; \
-    echo "Installing Node.js and npm"; \
-    curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - ; \
-    apt-get install -y nodejs; \
-    rm -rf /etc/apt/sources.list.d/nodesource.list; \
+  echo "安装 nvm + Node LTS"; \
+  _tag_name=$(curl -s https://api.github.com/repos/nvm-sh/nvm/releases/latest | jq -r '.tag_name'); \
+  echo "获取到 nvm 最新版本: $_tag_name"; \
+  mkdir -p "$NVM_DIR" \
+  && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$_tag_name/install.sh | PROFILE=/dev/null bash \
+  && source "$NVM_DIR/nvm.sh" \
+  && nvm install "$NODE_VERSION" \
+  && nvm alias default "$NODE_VERSION" \
+  && node -v && npm -v; \
+  echo; \
+  echo "登录/交互式 bash 自动加载 nvm"; \
+  printf 'export NVM_DIR="/opt/nvm"\n[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"\n' > /etc/profile.d/nvm.sh; \
+  grep -q 'profile.d/nvm.sh' /etc/bash.bashrc || echo '[ -f /etc/profile.d/nvm.sh ] && . /etc/profile.d/nvm.sh' >> /etc/bash.bashrc; \
+  echo; \
+  echo "非交互 bash 自动加载 nvm"; \
+  cat /etc/profile.d/nvm.sh >> /etc/bash_env; \
+  echo;
+
+ENV BASH_ENV=/etc/bash_env
+
+RUN set -eux; \
     npm -v; \
     npm install -g npm@latest; \
     npm -v; \
@@ -115,12 +194,16 @@ RUN set -eux; \
     npm config set prefer-offline false; \
     echo "Installing global npm packages"; \
     npm install -g --no-cache \
+        vitest \
+        degit \
+        vue-tsc \
+        yarn \
+        pnpm \
+        pm2 \
+        prettier \
+        typescript \
+        npm-check-updates \
         @go-task/cli \
-        vitest@latest \
-        vue-tsc@latest \
-        yarn@latest \
-        pnpm@latest-10 \
-        prettier@latest \
         @anthropic-ai/claude-code; \
     echo "Cleaning npm cache and temporary files"; \
     npm cache clean --force; \

@@ -113,11 +113,6 @@ RUN set -eux; \
 # curl -s https://api.github.com/repos/etcd-io/etcd/releases/latest | jq -r '.tag_name'
 COPY --from=gcr.io/etcd-development/etcd:v3.6.6 /usr/local/bin/etcdctl /usr/local/bin/etcdctl
 
-RUN set -eux; \
-    echo "安装 Golang https://golang.google.cn/dl/"; \
-    curl -Lo - "https://golang.google.cn/dl/go1.25.0.linux-amd64.tar.gz" | tar zxf - -C /usr/local/; \
-    /usr/local/go/bin/go install mvdan.cc/sh/v3/cmd/shfmt@latest;
-
 ARG GOPROXY=https://goproxy.cn,direct
 ARG GO111MODULE=on
 RUN set -eux; \
@@ -130,7 +125,7 @@ RUN set -eux; \
     /usr/local/go/bin/go install golang.org/x/tools/cmd/godoc@latest; \
     /usr/local/go/bin/go install golang.org/x/tools/cmd/goimports@latest; \
     /usr/local/go/bin/go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest; \
-    /usr/local/go/bin/go install github.com/cosmtrek/air@latest; \
+    /usr/local/go/bin/go install github.com/air-verse/air@latest; \
     /usr/local/go/bin/go install github.com/go-delve/delve/cmd/dlv@latest; \
     /usr/local/go/bin/go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest; \
     /usr/local/go/bin/go install google.golang.org/protobuf/cmd/protoc-gen-go@latest; \
@@ -168,7 +163,9 @@ RUN set -eux; \
 
 RUN set -eux; \
     echo "安装 uv"; \
-    wget -qO- https://github.com/astral-sh/uv/releases/download/0.8.11/uv-x86_64-unknown-linux-gnu.tar.gz | tar -xzf - -C /tmp; \
+    _tag_name=$(curl -s https://api.github.com/repos/astral-sh/uv/releases/latest | jq -r '.tag_name'); \
+    echo "获取到 uv 最新版本: $_tag_name"; \
+    wget -qO- https://github.com/astral-sh/uv/releases/download/$_tag_name/uv-x86_64-unknown-linux-gnu.tar.gz | tar -xzf - -C /tmp; \
     mv /tmp/uv-x86_64-unknown-linux-gnu/uv /usr/local/bin/uv; \
     mv /tmp/uv-x86_64-unknown-linux-gnu/uvx /usr/local/bin/uvx; \
     chmod +x /usr/local/bin/uv /usr/local/bin/uvx; \
@@ -179,11 +176,30 @@ RUN set -eux; \
     uv -V; \
     echo;
 
+ENV NVM_DIR=/opt/nvm 
+ENV NODE_VERSION="lts/*"
 RUN set -eux; \
-    echo "Installing Node.js and npm"; \
-    curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - ; \
-    apt-get install -y nodejs; \
-    rm -rf /etc/apt/sources.list.d/nodesource.list; \
+  echo "安装 nvm + Node LTS"; \
+  _tag_name=$(curl -s https://api.github.com/repos/nvm-sh/nvm/releases/latest | jq -r '.tag_name'); \
+  echo "获取到 nvm 最新版本: $_tag_name"; \
+  mkdir -p "$NVM_DIR" \
+  && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$_tag_name/install.sh | PROFILE=/dev/null bash \
+  && source "$NVM_DIR/nvm.sh" \
+  && nvm install "$NODE_VERSION" \
+  && nvm alias default "$NODE_VERSION" \
+  && node -v && npm -v; \
+  echo; \
+  echo "登录/交互式 bash 自动加载 nvm"; \
+  printf 'export NVM_DIR="/opt/nvm"\n[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"\n' > /etc/profile.d/nvm.sh; \
+  grep -q 'profile.d/nvm.sh' /etc/bash.bashrc || echo '[ -f /etc/profile.d/nvm.sh ] && . /etc/profile.d/nvm.sh' >> /etc/bash.bashrc; \
+  echo; \
+  echo "非交互 bash 自动加载 nvm"; \
+  cat /etc/profile.d/nvm.sh >> /etc/bash_env; \
+  echo;
+
+ENV BASH_ENV=/etc/bash_env
+
+RUN set -eux; \
     npm -v; \
     npm install -g npm@latest; \
     npm -v; \
@@ -192,12 +208,16 @@ RUN set -eux; \
     npm config set prefer-offline false; \
     echo "Installing global npm packages"; \
     npm install -g --no-cache \
+        vitest \
+        degit \
+        vue-tsc \
+        yarn \
+        pnpm \
+        pm2 \
+        prettier \
+        typescript \
+        npm-check-updates \
         @go-task/cli \
-        vitest@latest \
-        vue-tsc@latest \
-        yarn@latest \
-        pnpm@latest-10 \
-        prettier@latest \
         @anthropic-ai/claude-code; \
     echo "Cleaning npm cache and temporary files"; \
     npm cache clean --force; \
@@ -244,8 +264,13 @@ EOF
     fi
   }
   {
-    _registry="ghcr.io/lwmacct" # CR 服务平台
+    _registry="ghcr.io/lwmacct" # 托管平台, 如果是 docker.io 则可以只填写用户名
     _repository="$_registry/$_image"
+    _buildcache="$_registry/$_pro_name:cache"
+    echo "image: $_repository"
+    echo "cache: $_buildcache"
+    echo "-----------------------------------"
+    # docker buildx build --builder default --platform linux/amd64 -t "$_repository" --network host --progress plain --load --cache-to "type=registry,ref=$_buildcache,mode=max" --cache-from "type=registry,ref=$_buildcache" . && {
     docker buildx build --builder default --platform linux/amd64 -t "$_repository" --network host --progress plain --load . && {
       if false; then
         docker rm -f sss
@@ -268,7 +293,7 @@ __help() {
   cat >/dev/null <<"EOF"
 这里可以写一些备注
 
-ghcr.io/lwmacct/250209-cr-vscode:dev-2508200
+ghcr.io/lwmacct/250209-cr-vscode:dev-2511140
 
 EOF
 }
